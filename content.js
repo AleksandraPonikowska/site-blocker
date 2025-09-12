@@ -33,7 +33,7 @@ document.documentElement.innerHTML = `
     }
 
   </style>
-  <h2>This site is blocked</h2>
+  <h1>This site is blocked</h1>
 `;
 
 
