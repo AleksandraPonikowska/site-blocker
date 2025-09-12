@@ -12,9 +12,8 @@ export default defineConfig({
           dest: '.',
         },
         {
-          src: 'src/content.ts',
+          src: 'src/content.js',
           dest: '.',
-          rename: 'content.js' 
         }
 
       ],

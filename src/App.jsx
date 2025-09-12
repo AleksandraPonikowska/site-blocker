@@ -2,7 +2,7 @@ import { useEffect, useState } from 'react';
 import './App.css';
 
 function App() {
-  const [blockedSites, setBlockedSites] = useState<string[]>([]);
+  const [blockedSites, setBlockedSites] = useState([]);
 
   // Wczytywanie listy z storage przy starcie
   useEffect(() => {
