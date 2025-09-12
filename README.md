@@ -1,2 +1,2 @@
-# site-bloker
-chrome extension for blocking acces to chosen websites
+# site-blocker
+chrome extension for blocking access to chosen websites
