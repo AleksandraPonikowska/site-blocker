@@ -8,7 +8,7 @@
   },
 
   "action": {
-    "default_popup": "popup.html"
+    "default_popup": "index.html"
   },
 
   "content_scripts": [
@@ -16,7 +16,7 @@
       "matches": ["<all_urls>"],
       "js": ["content.js"],
       "run_at": "document_start"
-
+  
     }
   ],
 

@@ -1,3 +1,5 @@
+console.log("Odpada się content.ts")
+
 chrome.storage.sync.get({ blockedSites : [] })
   .then((data) => {
     const badSites = data.blockedSites;
