@@ -8,7 +8,6 @@
 body {
     padding: 10px;
     width: 250px;
-    height: 400px;
     background: var(--bg-color);
     color: var(--text-color);
     font-family: Arial, sans-serif;

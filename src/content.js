@@ -6,6 +6,12 @@ chrome.storage.sync.get({ blockedSites : [] })
     const url = window.location.hostname;
     if (badSites.includes(url)) {
 
+      document.documentElement.style.filter = "grayscale(100%)";
+      
+
+
+return;
+
     document.documentElement.innerHTML = `
       <style>
 
@@ -39,6 +45,6 @@ chrome.storage.sync.get({ blockedSites : [] })
       <h1>This site is blocked</h1>
     `;
 
-  window.stop();
+  //window.stop();
   }
   });
