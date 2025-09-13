@@ -10,7 +10,7 @@ function App() {
         const data = await chrome.storage.sync.get({ blockedSites: [] });
         setBlockedSites(data.blockedSites);
       } catch (err) {
-        console.error("Błąd przy wczytywaniu blockedSites:", err);
+        console.error("Error while loading blockedSites:", err);
       }
     };
     loadBlockedSites();

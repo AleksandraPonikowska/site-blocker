@@ -28,6 +28,12 @@
 h1 {
     font-size: 1.8em;
     font-weight: 600;
+    color: var(--accent-color);
+    
+}
+h2 {
+    font-size: 1.4em;
+    font-weight: 600;
     
 }
 .logo {
@@ -35,6 +41,10 @@ h1 {
     text-align: center;
     padding: 20px;
     
+}
+.logo-text{
+        color: var(--text-color)
+
 }
 
 .sidebar {
@@ -91,3 +101,6 @@ h1 {
     display: block;
 }
 
+.main-content {
+    padding: 20px 40px;
+}
