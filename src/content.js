@@ -2,7 +2,7 @@ console.log("Odpada się content.ts")
 
 chrome.storage.sync.get({ blockedSites : [] })
   .then((data) => {
-    const badSites = data.blockedSites;
+    const badSites = data.blockedSites.map(site => site.hostname);
     const url = window.location.hostname;
     if (badSites.includes(url)) {
 

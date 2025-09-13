@@ -10,15 +10,15 @@ function Tabs() {
                 meow
                 <div className = "tabs">
                     <div 
-                        className = "tab active-tab"
+                        className = {activeTab == 0 ? "active-tab" : "tab"}
                         onClick = {() => setActiveTab(0)}
                         >Blocked Sites</div>
                     <div 
-                        className = "tab"
+                        className = {activeTab == 1 ? "active-tab" : "tab"}
                         onClick = {() => setActiveTab(1)}
                         >Groups</div>
                     <div
-                        className = "tab"
+                        className = {activeTab == 2 ? "active-tab" : "tab"}
                         onClick = {()=> setActiveTab(2)}
                         >Schedule</div>
                 </div>
