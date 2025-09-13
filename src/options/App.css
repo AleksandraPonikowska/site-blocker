@@ -1,27 +1,81 @@
+
+:root {
+    --bg-color: #e1e1e1;
+    --text-color: rgb(36, 36, 36);
+    --button-bg-color: #4c4c4c;
+    --button-bg-hover-color: #727272;
+}
+
+
+.html, body, #root {
+    height: 100%;
+    margin: 0;
+    padding: 0;
+    font-family: "Segoe UI", Roboto, Arial, sans-serif;
+    background-color: white;
+    font-weight: 400;
+
+}
+
 .container {
-  display: flex;
+    display: flex;
+    padding: 0;
+    margin: 0;
+    height: 100vh;
+    color: var(--text-color);
+}
+h1 {
+    font-size: 1.8em;
+    font-weight: 600;
+    
+}
+.logo {
+    margin: 20px 0 30px 0;
+    text-align: center;
+    padding: 20px;
+    
 }
 
 .sidebar {
-  width: 180px;
-  background: #e1e1e1;
-  padding: 20px;
-  display: flex;
-  flex-direction: column;
+    margin: 0;
+    padding: 0;
+    width: 250px;
+    background-color: var(--bg-color);
+
+    display: flex;
+    flex-direction: column;
+
 }
 
 .tabs {
   display: flex;
   flex-direction: column;
-  gap: 10px;
+  gap: 0px;
+  margin: 20px 0 0 0;
+  padding: 0;
+  align-items: flex-end;  
 }
 
 .tab {
-  background: #dcdcdc;
+  background: var(--bg-color);
+  text-align: right;
+  height: 40px;
+  padding: 10px 20px;
+  line-height: 40px;
+  font-size: 1.2em;
+  color: var(--text-color);
+  width: 200px;
+    border-radius: 20px 0px 0px 20px;
+
+}
+
+.tab:hover {
+  color: rgb(137, 137, 137);
+    cursor: pointer;
 }
 
 .active-tab {
-  background: #706666;
+  background:white;
 }
 
 .content {

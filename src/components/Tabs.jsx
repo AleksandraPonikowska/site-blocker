@@ -7,18 +7,21 @@ function Tabs() {
     return (
         <div className = "container">
             <div className = "sidebar">
-                meow
+                <div className = "logo">
+                    <h1>Site Blocker</h1>
+                </div>
+                
                 <div className = "tabs">
                     <div 
-                        className = {activeTab == 0 ? "active-tab" : "tab"}
+                        className = {activeTab == 0 ? "active-tab tab" : "tab"}
                         onClick = {() => setActiveTab(0)}
                         >Blocked Sites</div>
                     <div 
-                        className = {activeTab == 1 ? "active-tab" : "tab"}
+                        className = {activeTab == 1 ? "active-tab tab" : "tab"}
                         onClick = {() => setActiveTab(1)}
                         >Groups</div>
                     <div
-                        className = {activeTab == 2 ? "active-tab" : "tab"}
+                        className = {activeTab == 2 ? "active-tab tab" : "tab"}
                         onClick = {()=> setActiveTab(2)}
                         >Schedule</div>
                 </div>
