@@ -67,8 +67,7 @@ function Tabs() {
             <div className = "main-content">
                 <div className = {activeTab == 0 ? "active-content" : "content"}>
                     <h1>Blocked Sites</h1>
-                    <Groups groups={groups}></Groups>
-                    <BlockedSites sites={blockedSites} />
+                    <Groups groups={groups} sites = {blockedSites} setSites = {setBlockedSites}></Groups>
                 </div>
                 <div className = {activeTab == 1 ? "active-content" : "content"}> GROUPS CONTENT</div>
                 <div className = {activeTab == 2 ? "active-content" : "content"}> SCHEDULE CONTENT</div>

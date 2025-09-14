@@ -1,0 +1,10 @@
+.task {
+  padding: 8px;
+  margin: 4px 0;
+  background: #eee;
+  border: 1px solid #ccc;
+  cursor: grab;
+}
+.task:active {
+  cursor: grabbing;
+}

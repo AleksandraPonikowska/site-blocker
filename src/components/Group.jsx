@@ -1,12 +1,23 @@
 import React from 'react';
 
-function Groups({ sites = [] }) {
+import { SortableContext, verticalListSortingStrategy } from '@dnd-kit/sortable';
+import Task from './Task.jsx';
+
+function Group({ sites = [] }) {
+
+    const siteIds = sites.map(site => site.hostname);
+
     return (
         <div className="group">
-            miau
+            <h3>default</h3>
+            <SortableContext items={siteIds} strategy={verticalListSortingStrategy}>
+            {siteIds.map(hostName => (
+                <Task key={hostName} id={hostName} />
+            ))}
+            </SortableContext>
         </div>
     );
 }
 
 
-export default Groups;
+export default Group;
