@@ -1,4 +1,5 @@
-import { useState, useEffect, use } from "react";
+import { useState} from "react";
+import useChromeStorage from "../useChromeStorage";
 import BlockedSites from "./BlockedSites";
 import Groups from "./Groups";
 
@@ -6,44 +7,12 @@ function Tabs() {
 
     const [activeTab, setActiveTab] = useState(0);
 
-    const [blockedSites, setBlockedSites] = useState([]);
+    const [blockedSites, setBlockedSites] = useChromeStorage("blockedSites", []);
+    const [groups, setGroups] = useChromeStorage("groups", [{id: 0, name: "default"}]);
     
-      useEffect(() => {
-        const loadBlockedSites = async () => {
-          try {
-            const data = await chrome.storage.sync.get({ blockedSites: [] });
-            setBlockedSites(data.blockedSites);
-          } catch (err) {
-            console.error("Error while loading blockedSites:", err);
-          }
-        };
-        loadBlockedSites();
-      }, []);
-
-    const [groups, setGroups] = useState([]);
-
-    useEffect(() => {
-        const loadGroups = async () => {
-            try {
-                const data = await chrome.storage.sync.get({ groups: [] });
-                let groups = data.groups;
-
-                if (!groups || groups.length === 0) {
-                    console.log("No groups found, creating default group");
-                    groups = [{id: 0, name: "default" }]
-                    await chrome.storage.sync.set({ groups });
-                }
-                setGroups(groups);
-            } catch (err) {
-                console.error("Error while loading groups:", err);
-            }
-        };
-        loadGroups();
-    }, []);
-
-
     return (
         <div className = "container">
+            {blockedSites.length}
             <div className = "sidebar">
                 <div className = "logo">
                     <h1 className = "logo-text"> 🚫 Site Blocker</h1>

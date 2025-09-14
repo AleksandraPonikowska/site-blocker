@@ -2,6 +2,7 @@ import React from 'react';
 
 import { SortableContext, verticalListSortingStrategy } from '@dnd-kit/sortable';
 import Task from './Task.jsx';
+import "./Group.css"
 
 function Group({ sites = [] }) {
 

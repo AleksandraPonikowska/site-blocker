@@ -1,20 +1,10 @@
 import { useEffect, useState } from 'react';
+import useChromeStorage from '../useChromeStorage';
 import './App.css';
 
 function App() {
-  const [blockedSites, setBlockedSites] = useState([]);
-
-  useEffect(() => {
-    const loadBlockedSites = async () => {
-      try {
-        const data = await chrome.storage.sync.get({ blockedSites: [] });
-        setBlockedSites(data.blockedSites);
-      } catch (err) {
-        console.error("Error while loading blockedSites:", err);
-      }
-    };
-    loadBlockedSites();
-  }, []);
+  const [blockedSites, setBlockedSites] = useChromeStorage("blockedSites", []);
+const [groups, setGroups] = useChromeStorage("groups", [{id: 0, name: "default"}]);
 
   const blockCurrentSite = async () => {
     try {
