@@ -10,7 +10,14 @@ function Tabs() {
 
     const [blockedSites, setBlockedSites] = useChromeStorage("blockedSites", []);
     const [groups, setGroups] = useChromeStorage("groups", [{id: 0, name: "default"}]);
-    const [rules, setRules] = useChromeStorage("rules", [{id: 0, groupId: 0, type: 2}]);
+    const [rules, setRules] = useChromeStorage("rules", [{
+        id: 0,
+        groupId: 0,  
+        type: 0,
+        startTime: "08:00",
+        endTime: "16:00",
+        days: [true, true, true, true, true, false, false]
+    }]);
 
 
     
