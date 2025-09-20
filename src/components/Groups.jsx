@@ -25,6 +25,7 @@ const Groups = ({ sites = [], setSites = () => {} }) => {
       <DndContext collisionDetection={closestCorners} onDragEnd={handleDragEnd}>
         <Group sites={sites} />
       </DndContext>
+      <h3 style={{ color: "grey" }}>editing groups would be added in the future</h3>
     </div>
   );
 };

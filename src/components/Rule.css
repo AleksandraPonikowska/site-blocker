@@ -1,6 +1,74 @@
 .rule {
   padding: 0px 15px 15px 15px;
+  margin: 10px 0 10px 0;
   border: 2px solid #dbdbdb;
   border-radius: 8px;
   width: 90%;
+}
+
+span {
+  font-size: 1.17em;
+  font-weight: bold;
+}
+
+
+input {
+
+  background-color: #fff;
+  border: 1px solid #ccc;
+  border-radius: 8px;
+
+  padding: 8px 12px 8px 12px;
+  font-size: 14px;
+  color: #333;
+
+  outline: none;
+  cursor: pointer;
+
+  transition: border-color 0.2s, box-shadow 0.2s;
+}
+
+input:hover {
+  border-color: #888;
+}
+
+input:focus {
+  border-color: #235691;
+  box-shadow: 0 0 0 2px rgba(74, 144, 226, 0.25);
+}
+
+
+
+.day-toggle {
+  display: inline-block;
+  cursor: pointer;
+}
+
+.day-toggle input {
+  display: none;
+}
+
+.day-toggle span {
+  border-radius: 20px;
+  margin: 2px;
+  padding: 5px;
+  background-color: #e0e0e0;
+  color: #333;
+  font-size: 14px;
+  font-weight: 500;
+  transition: background-color 0.2s, color 0.2s;
+
+  width: 60px;
+  height: 40px;
+
+  box-sizing: border-box;
+
+  display: inline-flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.day-toggle input:checked + span {
+  background-color: #6b1d1d;;
+  color: #fff;
 }
