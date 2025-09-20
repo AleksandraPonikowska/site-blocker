@@ -2,6 +2,7 @@ import { useState} from "react";
 import useChromeStorage from "../useChromeStorage";
 import BlockedSites from "./BlockedSites";
 import Groups from "./Groups";
+import Rules from "./Rules";
 
 function Tabs() {
 
@@ -9,10 +10,12 @@ function Tabs() {
 
     const [blockedSites, setBlockedSites] = useChromeStorage("blockedSites", []);
     const [groups, setGroups] = useChromeStorage("groups", [{id: 0, name: "default"}]);
+    const [rules, setRules] = useChromeStorage("rules", [{id: 0, groupId: 0, type: 2}]);
+
+
     
     return (
         <div className = "container">
-            {blockedSites.length}
             <div className = "sidebar">
                 <div className = "logo">
                     <h1 className = "logo-text"> 🚫 Site Blocker</h1>
@@ -26,10 +29,6 @@ function Tabs() {
                     <div 
                         className = {activeTab == 1 ? "active-tab tab" : "tab"}
                         onClick = {() => setActiveTab(1)}
-                        >Groups</div>
-                    <div
-                        className = {activeTab == 2 ? "active-tab tab" : "tab"}
-                        onClick = {()=> setActiveTab(2)}
                         >Schedule</div>
                 </div>
             </div>
@@ -38,8 +37,9 @@ function Tabs() {
                     <h1>Blocked Sites</h1>
                     <Groups groups={groups} sites = {blockedSites} setSites = {setBlockedSites}></Groups>
                 </div>
-                <div className = {activeTab == 1 ? "active-content" : "content"}> GROUPS CONTENT</div>
-                <div className = {activeTab == 2 ? "active-content" : "content"}> SCHEDULE CONTENT</div>
+                <div className = {activeTab == 1 ? "active-content" : "content"}> 
+                    <Rules groups={groups} rules={rules} setRules ={setRules}></Rules>
+                </div>
             </div>
         </div>
     )
