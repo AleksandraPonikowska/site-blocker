@@ -1,20 +1,22 @@
 import React from "react";
 import DropDown from "./DropDown";
 import "./Rule.css";
+import TimeRange from "./TimeRange";
 
 function Rule({ rule, onChange }) {
+
   const handleTypeChange = (newType) => {
     const updatedRule = { ...rule, type: newType };
     onChange(updatedRule);
   };
 
-  const handleStartTimeChange = (e) => {
-    const updatedRule = { ...rule, startTime: e.target.value };
-    onChange(updatedRule);
-  };
-
-  const handleEndTimeChange = (e) => {
-    const updatedRule = { ...rule, endTime: e.target.value };
+  const handleTimeChange = (index, updatedTimeRange) => {
+    const updatedTimeRanges = [...rule.timeRanges];
+    updatedTimeRanges[index] = {
+      ...updatedTimeRange
+    };
+    console.log(updatedTimeRanges);
+    const updatedRule = { ...rule, timeRanges: updatedTimeRanges };
     onChange(updatedRule);
   };
 
@@ -42,17 +44,30 @@ function Rule({ rule, onChange }) {
 
       <div>
         <h3>set time</h3>
-        <input
-          type="time"
-          value={rule.startTime || ""}
-          onChange={handleStartTimeChange}
-        />
-        ㅤtoㅤ
-        <input
-          type="time"
-          value={rule.endTime || ""}
-          onChange={handleEndTimeChange}
-        />
+
+        {rule.timeRanges.map((tr, idx) => (
+          <TimeRange
+            idx={idx}
+            data={tr}
+            onChange={(index, updatedRange) => {
+              handleTimeChange(index, updatedRange);
+            }}
+            onClick ={() => {
+              const updatedTimeRanges = rule.timeRanges.filter((_, i) => i !== idx);
+              const updatedRule = { ...rule, timeRanges: updatedTimeRanges };
+              onChange(updatedRule);
+            }}
+          />
+        ))}
+        <button
+          onClick={() => {
+            const updatedTimeRanges = [...rule.timeRanges, {startTime: "00:00", endTime: "23:59"}];
+            const updatedRule = { ...rule, timeRanges: updatedTimeRanges };
+            onChange(updatedRule);
+          }}
+        >
+          +
+        </button>
       </div>
 
       <div>

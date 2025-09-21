@@ -14,8 +14,11 @@ function Tabs() {
         id: 0,
         groupId: 0,  
         type: 0,
-        startTime: "08:00",
-        endTime: "16:00",
+        timeRanges: [
+            {startTime: "08:00", endTime: "16:00"},
+            {startTime: "20:00", endTime: "14:00"}
+
+        ],
         days: [true, true, true, true, true, false, false]
     }]);
 
