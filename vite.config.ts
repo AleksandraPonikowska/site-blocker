@@ -5,7 +5,7 @@ import { viteStaticCopy } from 'vite-plugin-static-copy';
 export default defineConfig({
   plugins: [
     react(),
-    viteStaticCopy({
+    viteStaticCopy({ //czyli co się bezpośrednio skopiuje do builda
       targets: [
         {
           src: 'public/manifest.json',

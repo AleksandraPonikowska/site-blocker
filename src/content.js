@@ -1,50 +1,57 @@
-console.log("Odpada się content.ts")
-
-chrome.storage.sync.get({ blockedSites : [] })
-  .then((data) => {
-    const badSites = data.blockedSites.map(site => site.hostname);
-    const url = window.location.hostname;
-    if (badSites.includes(url)) {
-
-      document.documentElement.style.filter = "grayscale(100%)";
-      
-
-
-return;
-
-    document.documentElement.innerHTML = `
-      <style>
-
-        html, body {
-          margin: 0;
-          padding: 0;
-          height: 100%;
-          width: 100%;
-          overflow: hidden;
-        }
-
-        body {
-          display: flex; 
-          flex-direction: column;
-          justify-content: center;
-          align-items: center;
-          background: #e1e1e1ff;
-          color: #626262ff;
-          font-family: Arial, sans-serif;
-          text-align: center;
-          box-sizing: border-box;
-        }
-
-        h2 {
-          font-size: 2em;
-          margin: 0;
-          font-weight: 600;
-        }
-
-      </style>
-      <h1>This site is blocked</h1>
-    `;
-
-  //window.stop();
-  }
+function getChromeStorage(key, defaultValue) {
+  return new Promise((resolve) => {
+    chrome.storage.sync.get({ [key]: defaultValue }, (result) => {
+      resolve(result[key]);
+    });
   });
+}
+
+(async () => {
+  console.log("Odpada się content.ts");
+
+  const blockedSites = await getChromeStorage("blockedSites", []);
+  const groups = await getChromeStorage("groups", [{ id: 0, name: "default" }]);
+  const rules = await getChromeStorage("rules", [{
+      id: 0,
+      groupId: 0,
+      type: 0,
+      timeRanges: [{ startTime: "00:00", endTime: "23:59" }],
+      days: [true, true, true, true, true, false, false]
+  }]);
+
+  const hostname = window.location.hostname;
+  const thisSite = blockedSites.find(site => site.hostname === hostname);
+  const group = groups.find(g => g.id === thisSite?.groupId) || groups[0];
+  const now = new Date();
+  const currentDay = (now.getDay() - 1 + 7) % 7; // poprawka na niedzielę
+  const currentTime = now.getHours() * 60 + now.getMinutes();
+
+  const currentRules = rules.filter(rule => {
+      if (rule.groupId !== group.id) return false;
+      if (!rule.days[currentDay]) return false;
+      return rule.timeRanges.some(range => {
+          const [startHour, startMinute] = range.startTime.split(":").map(Number);
+          const [endHour, endMinute] = range.endTime.split(":").map(Number);
+          const startTotal = startHour * 60 + startMinute;
+          const endTotal = endHour * 60 + endMinute;
+          return currentTime >= startTotal && currentTime <= endTotal;
+      });
+  });
+
+  console.log("Current Rules:", currentRules);
+
+  function applyRules() {
+    currentRules.forEach(rule => {
+      if (rule.type === 2 && document.body) {
+        document.body.style.filter = "grayscale(100%)";
+      }
+    });
+  }
+
+  if (document.body) {
+    applyRules();
+  } else {
+    document.addEventListener("DOMContentLoaded", applyRules);
+  }
+
+})();
