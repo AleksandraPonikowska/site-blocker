@@ -9,15 +9,24 @@ function getChromeStorage(key, defaultValue) {
 (async () => {
   console.log("Odpada się content.ts");
 
-  const blockedSites = await getChromeStorage("blockedSites", []);
-  const groups = await getChromeStorage("groups", [{ id: 0, name: "default" }]);
-  const rules = await getChromeStorage("rules", [{
-      id: 0,
-      groupId: 0,
-      type: 0,
-      timeRanges: [{ startTime: "00:00", endTime: "23:59" }],
-      days: [true, true, true, true, true, false, false]
-  }]);
+  const { blockedSites, groups, rules } = await new Promise((resolve) => {
+    chrome.storage.sync.get(
+      {
+        blockedSites: [],
+        groups: [{ id: 0, name: "default" }],
+        rules: [
+          {
+            id: 0,
+            groupId: 0,
+            type: 0,
+            timeRanges: [{ startTime: "00:00", endTime: "23:59" }],
+            days: [true, true, true, true, true, false, false],
+          },
+        ],
+      },
+      (result) => resolve(result)
+    );
+  });
 
   console.log("Blocked Sites:", blockedSites);
   console.log("Groups:", groups);
@@ -50,12 +59,12 @@ function getChromeStorage(key, defaultValue) {
   function applyRules() {
     currentRules.forEach(rule => {
       if (rule.type === 2 && document.body) {
-        document.body.style.filter = "grayscale(100%)";
+        document.documentElement.style.filter = "grayscale(100%)";
       }
     });
   }
 
-  if (document.body) {
+  if (true) {
     applyRules();
   } else {
     document.addEventListener("DOMContentLoaded", applyRules);
