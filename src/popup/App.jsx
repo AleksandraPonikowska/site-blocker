@@ -15,7 +15,7 @@ const [groups, setGroups] = useChromeStorage("groups", [{id: 0, name: "default"}
       const hostname = url.hostname;
 
       if (!blockedSites.map(site => site.hostname).includes(hostname)) {
-        const newBlockedSites = [...blockedSites, {hostname: hostname, group: 0}];
+        const newBlockedSites = [...blockedSites, {hostname: hostname, groupId: 0}];
         await chrome.storage.sync.set({ blockedSites: newBlockedSites });
         setBlockedSites(newBlockedSites);
       }

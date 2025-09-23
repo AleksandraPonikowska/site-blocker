@@ -19,15 +19,22 @@ function getChromeStorage(key, defaultValue) {
       days: [true, true, true, true, true, false, false]
   }]);
 
+  console.log("Blocked Sites:", blockedSites);
+  console.log("Groups:", groups);
+
   const hostname = window.location.hostname;
-  const thisSite = blockedSites.find(site => site.hostname === hostname);
-  const group = groups.find(g => g.id === thisSite?.groupId) || -1;
+  const groupId = blockedSites.find(site => site.hostname === hostname).groupId;
   const now = new Date();
   const currentDay = (now.getDay() - 1 + 7) % 7;
   const currentTime = now.getHours() * 60 + now.getMinutes();
 
+  console.log("Current Hostname:", hostname);
+  console.log("Group ID:", groupId);
+  console.log("Current Day:", currentDay);
+  console.log("Current Time (in minutes):", currentTime);
+
   const currentRules = rules.filter(rule => {
-      if (rule.groupId !== group.id) return false;
+      if (rule.groupId !== groupId) return false;
       if (!rule.days[currentDay]) return false;
       return rule.timeRanges.some(range => {
           const [startHour, startMinute] = range.startTime.split(":").map(Number);
