@@ -3,7 +3,7 @@ import DropDown from "./DropDown";
 import "./Rule.css";
 import TimeRange from "./TimeRange";
 
-function Rule({ rule, onChange }) {
+function Rule({ rule, onChange, onDelete }) {
 
   const handleTypeChange = (newType) => {
     const updatedRule = { ...rule, type: newType };
@@ -29,6 +29,14 @@ function Rule({ rule, onChange }) {
 
   return (
     <div className="rule">
+
+      <button
+        className="button-delete"
+        onClick={() => onDelete(rule.id)}
+      >
+      ✖
+      </button>
+
       <div>
         <h3>set type</h3>
         <DropDown

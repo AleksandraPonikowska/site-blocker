@@ -73,3 +73,16 @@ input:focus {
   background-color: #6b1d1d;;
   color: #fff;
 }
+
+.rule {
+  position: relative;
+}
+
+.button-delete {
+  position: absolute;
+  top: 5px;
+  right: 5px;
+  background: none;
+  border: none;
+  cursor: pointer;
+}
