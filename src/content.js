@@ -21,9 +21,9 @@ function getChromeStorage(key, defaultValue) {
 
   const hostname = window.location.hostname;
   const thisSite = blockedSites.find(site => site.hostname === hostname);
-  const group = groups.find(g => g.id === thisSite?.groupId) || groups[0];
+  const group = groups.find(g => g.id === thisSite?.groupId) || -1;
   const now = new Date();
-  const currentDay = (now.getDay() - 1 + 7) % 7; // poprawka na niedzielę
+  const currentDay = (now.getDay() - 1 + 7) % 7;
   const currentTime = now.getHours() * 60 + now.getMinutes();
 
   const currentRules = rules.filter(rule => {
