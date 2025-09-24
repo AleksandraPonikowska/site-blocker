@@ -32,7 +32,10 @@ function getChromeStorage(key, defaultValue) {
   console.log("Groups:", groups);
 
   const hostname = window.location.hostname;
-  const groupId = blockedSites.find(site => site.hostname === hostname).groupId;
+  const groupId = blockedSites.find(site => site.hostname === hostname)?.groupId;
+  if (groupId  === undefined) {
+    return;
+  }
   const now = new Date();
   const currentDay = (now.getDay() - 1 + 7) % 7;
   const currentTime = now.getHours() * 60 + now.getMinutes();
@@ -64,7 +67,7 @@ function getChromeStorage(key, defaultValue) {
     });
   }
 
-  if (true) {
+  if (false) {
     applyRules();
   } else {
     document.addEventListener("DOMContentLoaded", applyRules);
