@@ -6,7 +6,9 @@ import "./Group.css"
 import { useSortable } from '@dnd-kit/sortable';
 import {CSS} from "@dnd-kit/utilities"; 
 
-function Group({ id, name, sites = [], onDelete = () => {} }) {
+function Group({ id, name, sites = [], onDelete = () => {} , updateName = () => {}}) {
+
+    const [editMode, setEditMode] = React.useState(false);
 
     const {setNodeRef, attributes, listeners, transform, transition,
             isDragging
@@ -50,7 +52,25 @@ function Group({ id, name, sites = [], onDelete = () => {} }) {
 
             <h3
             {...attributes}
-            {...listeners}>{name}</h3>
+            {...listeners}
+            onClick={()=>setEditMode(true)}>
+                
+                {!editMode && name}
+                {editMode && (
+                    <input
+                        className = "input"
+                        value = {name}
+                        onChange={(e)=> updateName(e.target.value)}
+                        autoFocus
+                        onBlur={()=> setEditMode(false)}
+                        onKeyDown={(e) => {
+                            if (e.key === 'Enter') {
+                                setEditMode(false);
+                            }
+                        }}
+                    />)}
+            
+            </h3>
             <SortableContext id = {id} items={siteIds} strategy={verticalListSortingStrategy}>
             {siteIds.map(hostName => (
                 <Task key={hostName} id={hostName} />

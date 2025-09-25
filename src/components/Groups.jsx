@@ -3,9 +3,19 @@ import { DndContext, DragOverlay, closestCorners } from "@dnd-kit/core";
 import { arrayMove, SortableContext, verticalListSortingStrategy } from "@dnd-kit/sortable";
 import { createPortal } from "react-dom";
 import Group from "./Group.jsx";
+import { useSensor, useSensors, PointerSensor } from "@dnd-kit/core";
 
 const Groups = ({ initialGroups = [], sites = [], setSites = () => {}, setGlobalGroups = () => {} }) => {
   const [activeGroup, setActiveGroup] = useState(null);
+
+  const sensors = useSensors(
+    useSensor(PointerSensor, {
+      activationConstraint: {
+        distance: 5,
+      },
+    })
+  );
+
   const [groups, setGroups] = useState([]);
 
   const [doWeDrag, setDoWeDrag] = useState(false);
@@ -62,7 +72,7 @@ const Groups = ({ initialGroups = [], sites = [], setSites = () => {}, setGlobal
   return (
     <div className="blocked-sites">
       <h2>Groups</h2>
-      <DndContext collisionDetection={closestCorners} onDragStart={handleDragStart} onDragEnd={handleDragEnd}>
+      <DndContext collisionDetection={closestCorners} onDragStart={handleDragStart} onDragEnd={handleDragEnd} sensors={sensors}>
         <SortableContext items={groupsIds} strategy={verticalListSortingStrategy}>
           {groups.map(group => (
             <Group
@@ -71,6 +81,11 @@ const Groups = ({ initialGroups = [], sites = [], setSites = () => {}, setGlobal
               name={group.name}
               sites={sites.filter(s => s.groupId === group.id)}
               onDelete={deleteGroup}
+              updateName={(newName) => {
+                const newGroups = groups.map(g => g.id === group.id ? { ...g, name: newName } : g);
+                setGroups(newGroups);
+                setGlobalGroups(newGroups);
+              }}
             />
           ))}
         </SortableContext>
