@@ -43,7 +43,7 @@ function Tabs() {
             <div className = "main-content">
                 <div className = {activeTab == 0 ? "active-content" : "content"}>
                     <h1>Blocked Sites</h1>
-                    <Groups groups={groups} sites = {blockedSites} setSites = {setBlockedSites} setGroups = {setGroups}></Groups>
+                    <Groups initialGroups={groups} sites = {blockedSites} setSites = {setBlockedSites} setGlobalGroups = {setGroups}></Groups>
                 </div>
                 <div className = {activeTab == 1 ? "active-content" : "content"}> 
                     <Rules groups={groups} rules={rules} setRules ={setRules}></Rules>

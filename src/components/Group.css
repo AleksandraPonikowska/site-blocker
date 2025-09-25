@@ -5,6 +5,7 @@
   width: 90%;
   position: relative;
   min-height: 96px;
+  background-color: white;
 }
 
 .button-delete {

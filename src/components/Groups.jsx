@@ -1,61 +1,95 @@
-import React from "react";
-import { DndContext, closestCorners } from "@dnd-kit/core";
-import { arrayMove } from "@dnd-kit/sortable";
+import React, { useState, useMemo, useEffect } from "react";
+import { DndContext, DragOverlay, closestCorners } from "@dnd-kit/core";
+import { arrayMove, SortableContext, verticalListSortingStrategy } from "@dnd-kit/sortable";
+import { createPortal } from "react-dom";
 import Group from "./Group.jsx";
 
-const Groups = ({ groups = [], sites = [], setSites = () => {}, setGroups = () => {} }) => {
+const Groups = ({ initialGroups = [], sites = [], setSites = () => {}, setGlobalGroups = () => {} }) => {
+  const [activeGroup, setActiveGroup] = useState(null);
+  const [groups, setGroups] = useState([]);
 
-  
-  const handleDragEnd = ({ active, over }) => {
-    if (!over) return;
+  const [doWeDrag, setDoWeDrag] = useState(false);
 
-    const activeId = active.id;
-    const newGroupId = 
-      over.data.current?.sortable?.containerId ?? over.id;
+  useEffect(() => {
+    if (initialGroups.length > 0) {
+      if (!doWeDrag)
+        setGroups(initialGroups);
+    }
+  }, [initialGroups]);
 
+  const groupsIds = useMemo(() => groups.map(g => g.id), [groups]);
 
-    console.log("Moving site", activeId, "to group", newGroupId);
+  function handleDragStart(event) {
+    setDoWeDrag(true);
+    const group = groups.find(g => g.id === event.active.id);
+    setActiveGroup(group);
+  }
 
-    setSites((prevSites) =>
-      prevSites.map((site) =>
-        site.hostname === activeId ? { ...site, groupId: Number(newGroupId) } : site
-      )
-    );
+  function handleDragEnd(event) {
+    const { active, over } = event;
+    if (!over || !active) return;
 
+    const activeGroup = groups.find(g => g.id === active.id);
+    const overGroup = groups.find(g => g.id === over.id);
 
-    //if (active.id !== over.id) {
-    //  const oldIndex = sites.findIndex((s) => s.hostname === active.id);
-    //  const newIndex = sites.findIndex((s) => s.hostname === over.id);
-    //  setSites(arrayMove(sites, oldIndex, newIndex));
-    //}
+    if (activeGroup && overGroup && active.id !== over.id) {
+      const oldIndex = groups.indexOf(activeGroup);
+      const newIndex = groups.indexOf(overGroup);
+      const newGroups = arrayMove(groups, oldIndex, newIndex);
+      setGroups(newGroups);
+      setGlobalGroups(newGroups);
+    }
+
+    setActiveGroup(null);
+  }
+
+  const addGroup = () => {
+    const newId = groups.length > 0 ? Math.max(...groups.map(g => g.id)) + 1 : 0;
+    const newGroup = { id: newId, name: `Group ${newId}` };
+    const newGroups = [...groups, newGroup];
+    setGroups(newGroups);
+    setGlobalGroups(newGroups);
   };
 
+  const deleteGroup = (id) => {
+    const newGroups = groups.filter(g => g.id !== id);
+    const newSites = sites.map(site => site.groupId === id ? { ...site, groupId: 0 } : site);
+    setGroups(newGroups);
+    setGlobalGroups(newGroups);
+    setSites(newSites);
+  };
 
   return (
-    <div className="blocked-sites">          
+    <div className="blocked-sites">
       <h2>Groups</h2>
-      <DndContext collisionDetection={closestCorners} onDragEnd={handleDragEnd}>
-        {groups.map((group) => (
-          <Group
-            key={group.id}
-            id ={group.id}
-            name={group.name}
-            sites={sites.filter((s) => s.groupId === group.id)}
-            onDelete = {(id) => {
-              console.log("Deleting group with id:", id);
-              const newGroups = groups.filter(g => g.id !== id);
-              const newSites = sites.map(site => site.groupId === id ? {...site, groupId: 0} : site);
-              setGroups(newGroups);
-              setSites(newSites);
-            }}
-          />
-        ))}
+      <DndContext collisionDetection={closestCorners} onDragStart={handleDragStart} onDragEnd={handleDragEnd}>
+        <SortableContext items={groupsIds} strategy={verticalListSortingStrategy}>
+          {groups.map(group => (
+            <Group
+              key={group.id}
+              id={group.id}
+              name={group.name}
+              sites={sites.filter(s => s.groupId === group.id)}
+              onDelete={deleteGroup}
+            />
+          ))}
+        </SortableContext>
+
+        <button onClick={addGroup}>+</button>
+
+        {createPortal(
+          <DragOverlay>
+            {activeGroup && (
+              <Group
+                id={activeGroup.id}
+                name={activeGroup.name}
+                sites={sites.filter(s => s.groupId === activeGroup.id)}
+              />
+            )}
+          </DragOverlay>,
+          document.body
+        )}
       </DndContext>
-      <button onClick={() => {
-        const newGroup = { id: groups.length, name: `Group ${groups.length}` };
-        const newGroups = [...groups, newGroup];
-        chrome.storage.sync.set({ groups: newGroups });
-      }}>+</button>
     </div>
   );
 };

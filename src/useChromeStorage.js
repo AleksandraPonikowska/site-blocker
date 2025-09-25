@@ -31,6 +31,7 @@ function useChromeStorage(key, initialValue) {
 
   const setStorageValue = async (newValue) => {
     try {
+      console.log("Setting storage value:", key, newValue);
       await chrome.storage.sync.set({ [key]: newValue });
       setValue(newValue);
     } catch (err) {
