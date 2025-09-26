@@ -29,7 +29,7 @@ function Rules({ groups, rules, setRules }) {
       <h2>Rules</h2>
       <DropDown
         options={groups}
-        defaultValue={chosenGroup}
+        value={chosenGroup}
         onChange={(val) => setChosenGroup(val)}
       />
       
