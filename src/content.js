@@ -61,6 +61,11 @@ function getChromeStorage(key, defaultValue) {
 
   function applyRules() {
     currentRules.forEach(rule => {
+      if (rule.type === 0){
+        document.documentElement.innerHTML = "elo"
+        console.log("blok")
+        window.stop();
+      }
       if (rule.type === 2 && document.body) {
         document.documentElement.style.filter = "grayscale(90%)";
       }
