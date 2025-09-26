@@ -1,19 +1,25 @@
 import React from 'react';
 
-import { SortableContext, verticalListSortingStrategy } from '@dnd-kit/sortable';
+import { SortableContext, verticalListSortingStrategy} from '@dnd-kit/sortable';
 import Task from './Task.jsx';
 import "./Group.css"
 import { useSortable } from '@dnd-kit/sortable';
 import {CSS} from "@dnd-kit/utilities"; 
+import { useMemo } from 'react';
 
-function Group({ id, name, sites = [], onDelete = () => {} , updateName = () => {}}) {
+function Group({ id, name, sites = [], onDelete = () => {} , updateName = () => {}, onTaskDelete = () => {}}) {
 
     const [editMode, setEditMode] = React.useState(false);
 
-    const {setNodeRef, attributes, listeners, transform, transition,
-            isDragging
+    const {setNodeRef,
+        attributes, 
+        listeners, 
+        transform, 
+        transition,
+        isDragging
     } = useSortable({
-        id: id
+        id: id,
+        data: { type: "group", groupId: id },
     })
 
     const style = {
@@ -29,7 +35,8 @@ function Group({ id, name, sites = [], onDelete = () => {} , updateName = () => 
         // but i'd have to know the height :(
     }
 
-    const siteIds = sites.map(site => site.hostname);
+    const siteIds = useMemo(() => sites.map(site => site.hostname), [sites]);
+
 
 
 
@@ -71,9 +78,9 @@ function Group({ id, name, sites = [], onDelete = () => {} , updateName = () => 
                     />)}
             
             </h3>
-            <SortableContext id = {id} items={siteIds} strategy={verticalListSortingStrategy}>
-            {siteIds.map(hostName => (
-                <Task key={hostName} id={hostName} />
+            <SortableContext items={siteIds} strategy={verticalListSortingStrategy}>
+            {sites.map(s => (
+                <Task key={s.hostname} site={s} onDelete={() => onTaskDelete(s.hostname)}/>
             ))}
             </SortableContext>
         </div>

@@ -4,9 +4,15 @@ import { arrayMove, SortableContext, verticalListSortingStrategy } from "@dnd-ki
 import { createPortal } from "react-dom";
 import Group from "./Group.jsx";
 import { useSensor, useSensors, PointerSensor } from "@dnd-kit/core";
+import Task from './Task.jsx';
 
 const Groups = ({ initialGroups = [], sites = [], setSites = () => {}, setGlobalGroups = () => {} }) => {
   const [activeGroup, setActiveGroup] = useState(null);
+  const [activeSite, setActiveSite] = useState(null);
+
+  const isNumber = (value) => {
+    return typeof value === 'number' && isFinite(value);
+  }
 
   const sensors = useSensors(
     useSensor(PointerSensor, {
@@ -30,12 +36,21 @@ const Groups = ({ initialGroups = [], sites = [], setSites = () => {}, setGlobal
   const groupsIds = useMemo(() => groups.map(g => g.id), [groups]);
 
   function handleDragStart(event) {
-    setDoWeDrag(true);
-    const group = groups.find(g => g.id === event.active.id);
-    setActiveGroup(group);
+
+    if(isNumber(event.active.id)){
+      setDoWeDrag(true);
+      const group = groups.find(g => g.id === event.active.id);
+      setActiveGroup(group);
+    } else {
+      const site = sites.find(s => s.hostname === event.active.id);
+      setActiveSite(site)
+    }
+    
   }
 
   function handleDragEnd(event) {
+    setActiveGroup(null);
+    setActiveSite(null);
     const { active, over } = event;
     if (!over || !active) return;
 
@@ -51,6 +66,50 @@ const Groups = ({ initialGroups = [], sites = [], setSites = () => {}, setGlobal
     }
 
     setActiveGroup(null);
+  }
+
+  function handleDragOver(event){
+    const { active, over } = event;
+    if (!over || !active) return;
+
+    const activeId = active.id;
+    const overId = over.id;
+
+    if (activeId == overId) return;
+
+    const isActiveATask = active.data.current?.type == "site";
+    const isOverATask = over.data.current?.type == "site";
+
+    //const isActiveATask = active.data.current?.hostname;
+    //const isOverATask = over.data.current?.hostname;
+
+    if(!isActiveATask) return;
+
+    if (isActiveATask && isOverATask){
+      const activeIndex = sites.findIndex(t => t.hostname === activeId);
+      const overIndex = sites.findIndex(t => t.hostname === overId);
+      console.log(sites[activeIndex])
+      console.log(sites[overIndex])
+      sites[activeIndex].groupId = sites[overIndex].groupId;
+      const ret = arrayMove(sites, activeIndex, overIndex);
+
+      setSites(ret);
+
+    }  
+
+    const isOverAGroup = over.data.current?.type == "group";
+
+    if(isActiveATask && isOverAGroup){
+      const activeIndex = sites.findIndex(t => t.hostname === activeId);
+      sites[activeIndex].groupId = overId;
+      const ret = arrayMove(sites, activeIndex, activeIndex);
+
+      console.log("OVER A GROUP");
+      setSites(ret);
+    }
+
+
+    
   }
 
   const addGroup = () => {
@@ -69,10 +128,20 @@ const Groups = ({ initialGroups = [], sites = [], setSites = () => {}, setGlobal
     setSites(newSites);
   };
 
+  const deleteSite = (hostname) => {
+    const newSites = sites.filter(s => s.hostname !== hostname);
+    setSites(newSites);
+  };
+
   return (
     <div className="blocked-sites">
       <h2>Groups</h2>
-      <DndContext collisionDetection={closestCorners} onDragStart={handleDragStart} onDragEnd={handleDragEnd} sensors={sensors}>
+      <DndContext collisionDetection={closestCorners}
+        sensors={sensors}
+        onDragStart={handleDragStart}
+        onDragEnd={handleDragEnd}
+        onDragOver={handleDragOver}
+        >
         <SortableContext items={groupsIds} strategy={verticalListSortingStrategy}>
           {groups.map(group => (
             <Group
@@ -81,6 +150,7 @@ const Groups = ({ initialGroups = [], sites = [], setSites = () => {}, setGlobal
               name={group.name}
               sites={sites.filter(s => s.groupId === group.id)}
               onDelete={deleteGroup}
+              onTaskDelete={deleteSite}
               updateName={(newName) => {
                 const newGroups = groups.map(g => g.id === group.id ? { ...g, name: newName } : g);
                 setGroups(newGroups);
@@ -99,8 +169,12 @@ const Groups = ({ initialGroups = [], sites = [], setSites = () => {}, setGlobal
                 id={activeGroup.id}
                 name={activeGroup.name}
                 sites={sites.filter(s => s.groupId === activeGroup.id)}
+
               />
             )}
+            {
+              activeSite && <Task site={activeSite} onDelete={() => {}}/>
+            }
           </DragOverlay>,
           document.body
         )}

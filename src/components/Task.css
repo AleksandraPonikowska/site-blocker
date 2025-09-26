@@ -6,5 +6,7 @@
   cursor: grab;
 }
 .task:active {
+
   cursor: grabbing;
 }
+

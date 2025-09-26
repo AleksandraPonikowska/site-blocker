@@ -62,7 +62,7 @@ function getChromeStorage(key, defaultValue) {
   function applyRules() {
     currentRules.forEach(rule => {
       if (rule.type === 2 && document.body) {
-        document.documentElement.style.filter = "grayscale(100%)";
+        document.documentElement.style.filter = "grayscale(90%)";
       }
     });
   }
