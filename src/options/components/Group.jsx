@@ -1,13 +1,13 @@
 import React from 'react';
 
 import { SortableContext, verticalListSortingStrategy} from '@dnd-kit/sortable';
-import Task from './Task.jsx';
+import Site from './Site.jsx';
 import "./Group.css"
 import { useSortable } from '@dnd-kit/sortable';
 import {CSS} from "@dnd-kit/utilities"; 
 import { useMemo } from 'react';
 
-function Group({ id, name, sites = [], onDelete = () => {} , updateName = () => {}, onTaskDelete = () => {}}) {
+function Group({ id, name, sites = [], onDelete = () => {} , updateName = () => {}, onSiteDelete = () => {}}) {
 
     const [editMode, setEditMode] = React.useState(false);
 
@@ -80,7 +80,7 @@ function Group({ id, name, sites = [], onDelete = () => {} , updateName = () => 
             </h3>
             <SortableContext items={siteIds} strategy={verticalListSortingStrategy}>
             {sites.map(s => (
-                <Task key={s.hostname} site={s} onDelete={() => onTaskDelete(s.hostname)}/>
+                <Site key={s.hostname} site={s} onDelete={() => onSiteDelete(s.hostname)}/>
             ))}
             </SortableContext>
         </div>

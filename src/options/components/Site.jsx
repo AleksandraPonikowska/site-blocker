@@ -1,5 +1,5 @@
 import React from 'react';
-import "./Task.css"
+import "./Site.css"
 import { useSortable } from '@dnd-kit/sortable';
 import { CSS } from '@dnd-kit/utilities';
 
@@ -32,7 +32,13 @@ export const Task = ({site, onDelete}) => {
             ref = {setNodeRef}
             style = {style}
             {...attributes}
-            {...listeners} >
+            {...listeners}
+            className = {container}>
+            <img 
+                src={`https://www.google.com/s2/favicons?domain=${site.hostname}`} 
+                alt="favicon" 
+                style={{ width: '16px', height: '16px' }}
+            />
             {site.hostname}
             <button onClick={onDelete}>✖</button>
         </div>
