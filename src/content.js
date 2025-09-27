@@ -1,13 +1,6 @@
-function getChromeStorage(key, defaultValue) {
-  return new Promise((resolve) => {
-    chrome.storage.sync.get({ [key]: defaultValue }, (result) => {
-      resolve(result[key]);
-    });
-  });
-}
+// fetch data from Chrome storage
 
 (async () => {
-  console.log("Odpada się content.ts");
 
   const { blockedSites, groups, rules } = await new Promise((resolve) => {
     chrome.storage.sync.get(
@@ -28,24 +21,20 @@ function getChromeStorage(key, defaultValue) {
     );
   });
 
-  console.log("Blocked Sites:", blockedSites);
-  console.log("Groups:", groups);
-
+  // get site hostname and find its group (if any)
   const hostname = window.location.hostname;
   const groupId = blockedSites.find(site => site.hostname === hostname)?.groupId;
   if (groupId  === undefined) {
     return;
   }
+
+  // get a date
   const now = new Date();
   const currentDay = (now.getDay() - 1 + 7) % 7;
   const currentTime = now.getHours() * 60 + now.getMinutes();
 
-  console.log("Current Hostname:", hostname);
-  console.log("Group ID:", groupId);
-  console.log("Current Day:", currentDay);
-  console.log("Current Time (in minutes):", currentTime);
-
-  const currentRules = rules.filter(rule => {
+  // filter rules which apply 
+  const activeRules = rules.filter(rule => {
       if (rule.groupId !== groupId) return false;
       if (!rule.days[currentDay]) return false;
       return rule.timeRanges.some(range => {
@@ -57,25 +46,31 @@ function getChromeStorage(key, defaultValue) {
       });
   });
 
-  console.log("Current Rules:", currentRules);
 
   function applyRules() {
-    currentRules.forEach(rule => {
-      if (rule.type === 0){
-        document.documentElement.innerHTML = "elo"
-        console.log("blok")
-        window.stop();
-      }
-      if (rule.type === 2 && document.body) {
-        document.documentElement.style.filter = "grayscale(90%)";
+    activeRules.forEach(rule => {
+      switch (rule.type){
+        case 0:
+          // TODO: add nice overlay
+          blockPage();
+          break;
+        case 2:
+          // TODO: custom strength
+          applyGrayscale(50);
+          break;
       }
     });
   }
 
-  if (false) {
-    applyRules();
-  } else {
-    document.addEventListener("DOMContentLoaded", applyRules);
-  }
+  applyRules();
 
 })();
+
+function blockPage(){
+  document.documentElement.innerHTML = "elo"
+  window.stop();
+} 
+
+function applyGrayscale(strength){
+  document.documentElement.style.filter = `grayscale(${strength}%)`;
+}
