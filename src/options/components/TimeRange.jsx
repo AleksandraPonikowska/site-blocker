@@ -26,7 +26,10 @@ function TimeRange({ idx, data, onChange, onClick }) {
         value={data.endTime || ""}
         onChange={handleEndChange}
       />
-      <button onClick={() => {
+      
+      <button 
+        className="tm-button-delete"
+        onClick={() => {
         onClick();
       }}>✖</button>
     </div>

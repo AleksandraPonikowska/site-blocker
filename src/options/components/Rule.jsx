@@ -52,7 +52,7 @@ function Rule({ rule, onChange, onDelete }) {
 
       <div>
         <h3>set time</h3>
-
+        <div class = "time-ranges">
         {rule.timeRanges.map((tr, idx) => (
           <TimeRange
             idx={idx}
@@ -66,16 +66,20 @@ function Rule({ rule, onChange, onDelete }) {
               onChange(updatedRule);
             }}
           />
+          
         ))}
+        
         <button
+          className = "tm-add-button"
           onClick={() => {
             const updatedTimeRanges = [...rule.timeRanges, {startTime: "00:00", endTime: "23:59"}];
             const updatedRule = { ...rule, timeRanges: updatedTimeRanges };
             onChange(updatedRule);
           }}
         >
-          +
+        +
         </button>
+        </div>
       </div>
 
       <div>
