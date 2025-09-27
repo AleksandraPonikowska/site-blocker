@@ -51,12 +51,17 @@
     activeRules.forEach(rule => {
       switch (rule.type){
         case 0:
-          // TODO: add nice overlay
+          console.log("BLOKOWANIE STRONY");
           blockPage();
+          break;
+        case 1:
+          // TODO: add delay
+          console.log("delay")
+          delayPage(10);
           break;
         case 2:
           // TODO: custom strength
-          applyGrayscale(50);
+          applyGrayscale(100);
           break;
       }
     });
@@ -66,11 +71,49 @@
 
 })();
 
-function blockPage(){
-  document.documentElement.innerHTML = "elo"
-  window.stop();
-} 
+function createOverlaySkeleton() {
+  const overlay = document.createElement("div");
+  overlay.style.position = "fixed";
+  overlay.style.top = "0";
+  overlay.style.left = "0";
+  overlay.style.width = "100%";
+  overlay.style.height = "100%";
+  overlay.style.backgroundColor = "#e1e1e1";
+  overlay.style.color = "rgb(36, 36, 36)";
+  overlay.style.fontWeight = "500";
+  overlay.style.display = "flex";
+  overlay.style.flexDirection = "column";
+  overlay.style.justifyContent = "center";
+  overlay.style.alignItems = "center";
+  overlay.style.fontFamily = '"Segoe UI", Roboto, Arial, sans-serif';
+  overlay.style.zIndex = "999999";
 
-function applyGrayscale(strength){
+  const message = document.createElement("div");
+  message.style.fontSize = "32px";
+  message.style.marginBottom = "20px";
+  overlay.appendChild(message);
+
+  document.body.appendChild(overlay);
+
+  return { overlay, message };
+}
+
+function createOverlay(text) {
+  const { message } = createOverlaySkeleton();
+  message.textContent = text;
+}
+
+function delayPage(init_seconds){
+
+  console.log("miau")
+}
+
+function blockPage() {
+  document.documentElement.innerHTML = "";
+  window.stop();
+  const overlay = createOverlay("This site is blocked"); 
+}
+
+function applyGrayscale(strength) {
   document.documentElement.style.filter = `grayscale(${strength}%)`;
 }
