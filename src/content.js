@@ -45,7 +45,7 @@
       });
   });
 
-  const maxDelay = 0;
+  let maxDelay = 0;
 
 
   function applyRules() {
@@ -68,6 +68,7 @@
     });
 
     if(maxDelay != 0){
+      console.log(maxDelay);
           (async () => {
             await delayPage(maxDelay);
           })();
@@ -178,7 +179,7 @@ async function delayPage(init_seconds) {
 
     if (liczba <= 0) {
       clearInterval(interval);
-      await unlockSite(1);
+      await unlockSite(10);
       location.reload();
     }
   }, 1000);
