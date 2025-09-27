@@ -1,38 +1,78 @@
 :root {
-    --bg-color: #e1e1e1ff;
-    --text-color: #626262ff;
-    --button-bg-color: #4c4c4c;
+    --bg-color: #e1e1e1;
+    --text-color: rgb(36, 36, 36);
+    --button-bg-color: white;
     --button-bg-hover-color: #727272;
+    --accent-color: #6b1d1d;
 }
 
-body {
-    padding: 10px;
-    width: 250px;
-    background: var(--bg-color);
-    color: var(--text-color);
-    font-family: Arial, sans-serif;
-    text-align: center;
-    box-sizing: border-box;
+html, body, #root {
+  width: 250px;
+  margin: 0;
+  padding: 0;
+  font-family: "Segoe UI", Roboto, Arial, sans-serif;
+  background-color: var(--bg-color);
+  color: var(--text-color);
+  box-sizing: border-box;
 }
 
-h1 {
-    font-size: 2em;
-    margin: 0;
-    font-weight: 600;
+.popup-container {
+  display: flex;
+  flex-direction: column;
+  padding: 15px;
+  gap: 15px;
+  justify-content: center;
+  align-items: center;
+}
+
+.logo h1 {
+  font-size: 1.8em;
+  font-weight: 600;
+  color: var(--text-color);
+  margin: 0;
+}
+
+.buttons {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  width: 100%;
+  align-items: center;
 }
 
 button {
-    margin-top: 10px;
-    padding: 10px 20px;
-    font-size: 1em;
-    background-color: var(--button-bg-color);
-    color: var(--bg-color);
-    border: none;
-    border-radius: 5px;
-    cursor: pointer;
-    transition: background-color 0.3s ease, color 0.3s ease;
+  width: 200px;
+  height: 40px;
+  padding: 0 20px;
+  font-size: 1.1em;
+  color: var(--text-color);
+  background-color: var(--button-bg-color);
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: all 0.2s ease;
 }
 
 button:hover {
-    background-color: var(--button-bg-hover-color);
+  color: var(--accent-color);
+  transform: translateY(-2px);
+  font-weight: bold;
+}
+
+button:active {
+  transform: translateY(1px);
+}
+
+
+button:disabled {
+  background-color: #ccc;
+  color: #888;
+  cursor: not-allowed;
+  transform: none;
+}
+
+button:disabled:hover {
+  background-color: #ccc;
+  transform: none;
+  font-weight: normal;
 }
