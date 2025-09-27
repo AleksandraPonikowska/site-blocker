@@ -19,6 +19,15 @@ function Tabs() {
         days: [true, true, true, true, true, false, false]
     }]);
 
+    
+    const handleTabClick = (tabIndex) => {
+        setActiveTab(tabIndex);
+
+        if (mainContentRef.current) {
+            mainContentRef.current.scrollTop = 0;
+        }
+    };
+
 
     
     return (
@@ -31,11 +40,11 @@ function Tabs() {
                 <div className = "tabs">
                     <div 
                         className = {activeTab == 0 ? "active-tab tab" : "tab"}
-                        onClick = {() => setActiveTab(0)}
+                        onClick = {() => handleTabClick(0)}
                         >Blocked Sites</div>
                     <div 
                         className = {activeTab == 1 ? "active-tab tab" : "tab"}
-                        onClick = {() => setActiveTab(1)}
+                        onClick = {() => handleTabClick(1)}
                         >Schedule</div>
                 </div>
             </div>
@@ -45,6 +54,8 @@ function Tabs() {
                     <Groups initialGroups={groups} sites = {blockedSites} setSites = {setBlockedSites} setGlobalGroups = {setGroups}></Groups>
                 </div>
                 <div className = {activeTab == 1 ? "active-content" : "content"}> 
+                    <h1>Schedule</h1>
+
                     <Rules groups={groups} rules={rules} setRules ={setRules}></Rules>
                 </div>
             </div>
