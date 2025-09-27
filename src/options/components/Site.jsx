@@ -33,13 +33,12 @@ export const Task = ({site, onDelete}) => {
             style = {style}
             {...attributes}
             {...listeners}
-            className = {container}>
+            className = {"site-container"}>
             <img 
                 src={`https://www.google.com/s2/favicons?domain=${site.hostname}`} 
                 alt="favicon" 
-                style={{ width: '16px', height: '16px' }}
             />
-            {site.hostname}
+            <span>{site.hostname}</span>
             <button onClick={onDelete}>✖</button>
         </div>
     );

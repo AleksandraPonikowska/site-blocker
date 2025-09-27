@@ -1,12 +1,48 @@
-.task {
-  padding: 8px;
-  margin: 4px 0;
-  background: #eee;
-  border: 1px solid #ccc;
-  cursor: grab;
-}
-.task:active {
-
-  cursor: grabbing;
+:root {
+    --bg-color: #e1e1e1;
+    --text-color: rgb(36, 36, 36);
+    --button-bg-color: #4c4c4c;
+    --button-bg-hover-color: #727272;
+    --accent-color: #6b1d1d;
 }
 
+.site-container {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 8px 12px;
+    margin: 4px 0;
+    background-color: none;
+    border: 2px solid #dbdbdb;
+    border-radius: 6px;
+    cursor: grab;
+}
+
+.site-container img {
+    width: 20px;
+    height: 20px;
+    margin-right: 10px;
+}
+
+.site-container span {
+    flex: 1;
+    color: var(--text-color);
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+
+    font-weight: 400;
+}
+
+.site-container button {
+    background: transparent;
+    border: none;
+    color: var(--button-bg-hover-color);
+    cursor: pointer;
+    transition: color 0.2s;
+}
+
+.site-container button:hover {
+    color: var(--text-color);
+
+}
