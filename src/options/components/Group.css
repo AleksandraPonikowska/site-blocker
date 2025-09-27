@@ -1,3 +1,11 @@
+:root {
+    --bg-color: #e1e1e1;
+    --text-color: rgb(36, 36, 36);
+    --button-bg-color: #4c4c4c;
+    --button-bg-hover-color: #727272;
+    --accent-color: #6b1d1d;
+}
+
 .group {
   padding: 0px 15px 15px 15px;
   border: 2px solid #dbdbdb;
@@ -6,6 +14,8 @@
   position: relative;
   min-height: 96px;
   background-color: white;
+  margin: 10px 0 10px 0;
+
 }
 
 .button-delete {
@@ -15,6 +25,22 @@
   background: none;
   border: none;
   cursor: pointer;
+}
+
+.button-delete {
+  position: absolute;
+  top: 20px;
+  right: 20px;
+  background: none;
+  border: none;
+  cursor: pointer;
+  color: var(--button-bg-hover-color);
+
+
+}
+
+.button-delete:hover {
+  color: var(--text-color);
 }
 
 input, h3:focus, h3:active {

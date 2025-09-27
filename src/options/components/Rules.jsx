@@ -44,6 +44,7 @@ function Rules({ groups, rules, setRules }) {
       ))}
 
       <button
+        className = "addButton"
         onClick={() => {
           const newRule = {
             id: Date.now(),
@@ -55,8 +56,9 @@ function Rules({ groups, rules, setRules }) {
           setRules([...rules, newRule]);
         }}
       >
-        +
+        <span>+</span>
       </button>
+      <br></br>
     </div>
   );
 }

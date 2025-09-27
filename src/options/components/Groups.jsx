@@ -160,7 +160,8 @@ const Groups = ({ initialGroups = [], sites = [], setSites = () => {}, setGlobal
           ))}
         </SortableContext>
 
-        <button onClick={addGroup}>+</button>
+        <button className={"addButton"} onClick={addGroup}><span>+</span></button>
+        <br></br>
 
         {createPortal(
           <DragOverlay>

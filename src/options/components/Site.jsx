@@ -27,6 +27,10 @@ export const Task = ({site, onDelete}) => {
         style.cursor = "grabbing";
     }
 
+    const hostNameDisplay = site.hostname.startsWith("www.")
+        ? site.hostname.slice(4)
+        : site.hostname;
+
     return (
         <div 
             ref = {setNodeRef}
@@ -35,10 +39,10 @@ export const Task = ({site, onDelete}) => {
             {...listeners}
             className = {"site-container"}>
             <img 
-                src={`https://www.google.com/s2/favicons?domain=${site.hostname}`} 
+                src={`https://www.google.com/s2/favicons?domain=${site.hostname}&sz=64`}
                 alt="favicon" 
             />
-            <span>{site.hostname}</span>
+            <span>{hostNameDisplay}</span>
             <button onClick={onDelete}>✖</button>
         </div>
     );
