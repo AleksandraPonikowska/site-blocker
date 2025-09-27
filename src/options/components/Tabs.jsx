@@ -1,6 +1,5 @@
 import { useState} from "react";
-import useChromeStorage from "../useChromeStorage";
-import BlockedSites from "./BlockedSites";
+import useChromeStorage from "../../useChromeStorage";
 import Groups from "./Groups";
 import Rules from "./Rules";
 

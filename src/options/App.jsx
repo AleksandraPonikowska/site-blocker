@@ -1,4 +1,4 @@
-import Tabs from '../components/Tabs.jsx'
+import Tabs from './components/Tabs.jsx'
 import './App.css';
 
 
