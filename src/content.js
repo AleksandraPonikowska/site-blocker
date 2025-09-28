@@ -56,7 +56,7 @@
           blockPage();
           break;
         case 1:
-          maxDelay = 5;
+          maxDelay = 10;
           console.log("delay")
           
           break;
@@ -170,16 +170,16 @@ async function delayPage(init_seconds) {
   window.stop();
 
   let liczba = init_seconds;
-  createOverlay(liczba);
+  createOverlay("This site will be unlocked after " + liczba + " seconds");
 
   const interval = setInterval(async () => {
 
     liczba--;
-    createOverlay(liczba);
+    createOverlay("This site will be unlocked after " + liczba + " seconds");
 
     if (liczba <= 0) {
       clearInterval(interval);
-      await unlockSite(10);
+      await unlockSite(10 * 60);
       location.reload();
     }
   }, 1000);
