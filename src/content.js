@@ -173,6 +173,7 @@ async function delayPage(init_seconds) {
   createOverlay("This site will be unlocked after " + liczba + " seconds");
 
   const interval = setInterval(async () => {
+    if (document.hidden) return;
 
     liczba--;
     createOverlay("This site will be unlocked after " + liczba + " seconds");
