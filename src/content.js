@@ -1,8 +1,31 @@
-// fetch data from Chrome storage
+let applicableRules = [];
+let groupId = 0;
+const updateInterval = 5; //page will apply rules every 5 minutes
+
 
 (async () => {
+  await updateApplicableData();
+  applyActiveRules();
+})();
 
-  const { blockedSites, rules } = await new Promise((resolve) => {
+setInterval(async () => {
+  applyActiveRules();
+}, updateInterval * 60 * 1000); 
+
+chrome.storage.onChanged.addListener(async (changes, area) => {
+  if (area !== "sync") return;
+  if (changes.rules || changes.blockedSites) {
+    await updateApplicableData();
+  }
+});
+
+// applicable may change only when chrome storage is changed
+// active may change as time passes
+
+
+//returns two arrays
+async function fetchAllData() {
+  return new Promise((resolve) => {
     chrome.storage.sync.get(
       {
         blockedSites: [],
@@ -19,70 +42,85 @@
       (result) => resolve(result)
     );
   });
+}
 
-  // get site hostname and find its group (if any)
+//updates applicablerules and groupid
+async function updateApplicableData(){
+  const {blockedSites, rules} = await fetchAllData();
+
   const hostname = window.location.hostname;
-  const groupId = blockedSites.find(site => site.hostname === hostname)?.groupId;
+  groupId = blockedSites.find(site => site.hostname === hostname)?.groupId;
   if (groupId  === undefined) {
     return;
   }
 
-  // get a date
+  applicableRules = rules.filter((rule) => rule.groupId == groupId);
+}
+
+//get a date
+function getDate(){
   const now = new Date();
   const currentDay = (now.getDay() - 1 + 7) % 7;
   const currentTime = now.getHours() * 60 + now.getMinutes();
+  return [currentDay, currentTime]
+}
 
-  // filter rules which apply 
-  const activeRules = rules.filter(rule => {
-      if (rule.groupId !== groupId) return false;
-      if (!rule.days[currentDay]) return false;
-      return rule.timeRanges.some(range => {
-          const [startHour, startMinute] = range.startTime.split(":").map(Number);
-          const [endHour, endMinute] = range.endTime.split(":").map(Number);
-          const startTotal = startHour * 60 + startMinute;
-          const endTotal = endHour * 60 + endMinute;
-          return currentTime >= startTotal && currentTime <= endTotal;
-      });
+//applicable -> active
+function getActiveRules(currentDay, currentTime){
+  const activeRules = applicableRules.filter(rule => {
+    if (!rule.days[currentDay]) return false;
+    return rule.timeRanges.some(range => {
+      const [startHour, startMinute] = range.startTime.split(":").map(Number);
+      const [endHour, endMinute] = range.endTime.split(":").map(Number);
+      const startTotal = startHour * 60 + startMinute;
+      const endTotal = endHour * 60 + endMinute;
+      return currentTime >= startTotal && currentTime <= endTotal;
+    });
+  });
+  return activeRules;
+
+}
+
+
+//apply rules
+function applyRules(activeRules) {
+  let maxDelay = 0;
+  activeRules.forEach(rule => {
+    switch (rule.type){
+      case 0:
+        console.log("BLOKOWANIE STRONY");
+        blockPage();
+        break;
+      case 1:
+        maxDelay = 10;
+        console.log("delay")
+        
+        break;
+      case 2:
+        // TODO: custom strength
+        applyGrayscale(100);
+        break;
+    }
   });
 
-  let maxDelay = 0;
-
-
-  function applyRules() {
-    activeRules.forEach(rule => {
-      switch (rule.type){
-        case 0:
-          console.log("BLOKOWANIE STRONY");
-          blockPage();
-          break;
-        case 1:
-          maxDelay = 10;
-          console.log("delay")
-          
-          break;
-        case 2:
-          // TODO: custom strength
-          applyGrayscale(100);
-          break;
-      }
-    });
-
-    if(maxDelay != 0){
-      console.log(maxDelay);
-          (async () => {
-            await delayPage(maxDelay);
-          })();
-    }
-
-
-
+  if(maxDelay != 0){
+    console.log(maxDelay);
+        (async () => {
+          await delayPage(maxDelay);
+        })();
   }
 
-  applyRules();
+}
 
-})();
+
+function applyActiveRules(){
+  const [currentDay, currentTime] = getDate();
+  const activeRules = getActiveRules(currentDay, currentTime);
+  applyRules(activeRules);
+}
 
 async function unlockSite(durationSeconds) {
+
   const now = Date.now();
   const unlockUntil = now + durationSeconds * 1000;
 
@@ -130,6 +168,8 @@ async function isSiteUnlocked() {
   return true;
 }
 
+// ========== OVERLAYS
+
 function createOverlaySkeleton() {
   const overlay = document.createElement("div");
   overlay.style.position = "fixed";
@@ -162,6 +202,8 @@ function createOverlay(text) {
   message.textContent = text;
 }
 
+// ========= ACTIONS
+
 async function delayPage(init_seconds) {
 
   if (await isSiteUnlocked()) return;
@@ -180,7 +222,7 @@ async function delayPage(init_seconds) {
 
     if (liczba <= 0) {
       clearInterval(interval);
-      await unlockSite(10 * 60);
+      await unlockSite(60);
       location.reload();
     }
   }, 1000);
@@ -196,3 +238,4 @@ function blockPage() {
 function applyGrayscale(strength) {
   document.documentElement.style.filter = `grayscale(${strength}%)`;
 }
+
