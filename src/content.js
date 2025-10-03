@@ -1,7 +1,6 @@
 let applicableRules = [];
 let groupId = 0;
-const updateInterval = 5; //page will apply rules every 5 minutes
-
+const updateInterval = 0.1; //page will apply rules every 5 minutes
 
 (async () => {
   await updateApplicableData();
@@ -9,15 +8,18 @@ const updateInterval = 5; //page will apply rules every 5 minutes
 })();
 
 setInterval(async () => {
+  console.log("update zasad! :3")
   applyActiveRules();
 }, updateInterval * 60 * 1000); 
 
-chrome.storage.onChanged.addListener(async (changes, area) => {
-  if (area !== "sync") return;
-  if (changes.rules || changes.blockedSites) {
-    await updateApplicableData();
-  }
-});
+
+// -> it's dumb, just reload a page
+//chrome.storage.onChanged.addListener(async (changes, area) => {
+//  if (area !== "sync") return;
+//  if (changes.rules || changes.blockedSites) {
+//    await updateApplicableData();
+//  }
+//});
 
 // applicable may change only when chrome storage is changed
 // active may change as time passes
@@ -207,6 +209,8 @@ function createOverlay(text) {
 async function delayPage(init_seconds) {
 
   if (await isSiteUnlocked()) return;
+  console.log("delay!!")
+
 
   document.documentElement.innerHTML = "";
   window.stop();
@@ -222,7 +226,7 @@ async function delayPage(init_seconds) {
 
     if (liczba <= 0) {
       clearInterval(interval);
-      await unlockSite(60);
+      await unlockSite(20);
       location.reload();
     }
   }, 1000);
