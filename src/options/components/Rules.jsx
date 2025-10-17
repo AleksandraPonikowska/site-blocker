@@ -54,7 +54,7 @@ function Rules({ groups, rules, setRules }) {
             days: [true, true, true, true, true, false, false],
 
             scale: 50,
-            delay: 5,
+            delay: 10,
             unblockAfter: 10
           };
           setRules([...rules, newRule]);
