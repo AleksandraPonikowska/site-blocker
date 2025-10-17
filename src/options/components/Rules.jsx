@@ -52,6 +52,10 @@ function Rules({ groups, rules, setRules }) {
             type: 0,
             timeRanges: [{ startTime: "00:00", endTime: "23:59" }],
             days: [true, true, true, true, true, false, false],
+
+            scale: 50,
+            delay: 5,
+            unblockAfter: 10
           };
           setRules([...rules, newRule]);
         }}

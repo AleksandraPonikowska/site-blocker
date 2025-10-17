@@ -50,6 +50,51 @@ function Rule({ rule, onChange, onDelete }) {
         />
       </div>
 
+       {rule.type === 2 && (
+        <div className="gray-scale-section">
+          <h3>Set Gray Scale Level</h3>
+          <input
+            type="range"
+            min="0"
+            max="100"
+            value={rule.scale ?? 50}
+            onChange={(e) =>
+              onChange({ ...rule, scale: Number(e.target.value) })
+            }
+          />
+          <span>{rule.scale ?? 50}%</span>
+        </div>
+      )}
+
+      {rule.type === 1 && (
+        <div className="delay-section">
+          <h3>set delay configuration</h3>
+          <label>
+            delay duration (seconds):{" "}
+            <input
+              type="number"
+              min="1"
+              value={rule.delay ?? 10}
+              onChange={(e) =>
+                onChange({ ...rule, delay: Number(e.target.value) })
+              }
+            />
+          </label>
+          <br />
+          <label>
+            block after (minutes):{" "}
+            <input
+              type="number"
+              min="1"
+              value={rule.unblockAfter ?? 10}
+              onChange={(e) =>
+                onChange({ ...rule, unblockAfter: Number(e.target.value) })
+              }
+            />
+          </label>
+        </div>
+      )}
+
       <div>
         <h3>set time</h3>
         <div class = "time-ranges">

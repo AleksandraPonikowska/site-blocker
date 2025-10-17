@@ -1,31 +1,19 @@
+const RULE_TYPES = {
+  BLOCK: 0,
+  DELAY: 1,
+  GRAYSCALE: 2
+}
+
+const UPDATE_INTERVAL_MINUTES = 1;
+
 let applicableRules = [];
 let groupId = 0;
-const updateInterval = 0.1; //page will apply rules every 5 minutes
 
-(async () => {
-  await updateApplicableData();
-  applyActiveRules();
-})();
+let overlayState = {
+  node: null,
+  messageEl: null
+};
 
-setInterval(async () => {
-  console.log("update zasad! :3")
-  applyActiveRules();
-}, updateInterval * 60 * 1000); 
-
-
-// -> it's dumb, just reload a page
-//chrome.storage.onChanged.addListener(async (changes, area) => {
-//  if (area !== "sync") return;
-//  if (changes.rules || changes.blockedSites) {
-//    await updateApplicableData();
-//  }
-//});
-
-// applicable may change only when chrome storage is changed
-// active may change as time passes
-
-
-//returns two arrays
 async function fetchAllData() {
   return new Promise((resolve) => {
     chrome.storage.sync.get(
@@ -46,7 +34,6 @@ async function fetchAllData() {
   });
 }
 
-//updates applicablerules and groupid
 async function updateApplicableData(){
   const {blockedSites, rules} = await fetchAllData();
 
@@ -59,187 +46,147 @@ async function updateApplicableData(){
   applicableRules = rules.filter((rule) => rule.groupId == groupId);
 }
 
-//get a date
 function getDate(){
   const now = new Date();
+  // monday - 1, sunday = 6
   const currentDay = (now.getDay() - 1 + 7) % 7;
   const currentTime = now.getHours() * 60 + now.getMinutes();
-  return [currentDay, currentTime]
+  return {currentDay, currentTime}
 }
 
-//applicable -> active
+function isRangeActive(range, currentTime){
+  const [startHour, startMinute] = range.startTime.split(":").map(Number);
+  const [endHour, endMinute] = range.endTime.split(":").map(Number);
+  const startTotal = startHour * 60 + startMinute;
+  const endTotal = endHour * 60 + endMinute;
+  return currentTime >= startTotal && currentTime <= endTotal;
+}
+
 function getActiveRules(currentDay, currentTime){
-  const activeRules = applicableRules.filter(rule => {
+  return applicableRules.filter(rule =>{
     if (!rule.days[currentDay]) return false;
-    return rule.timeRanges.some(range => {
-      const [startHour, startMinute] = range.startTime.split(":").map(Number);
-      const [endHour, endMinute] = range.endTime.split(":").map(Number);
-      const startTotal = startHour * 60 + startMinute;
-      const endTotal = endHour * 60 + endMinute;
-      return currentTime >= startTotal && currentTime <= endTotal;
-    });
-  });
-  return activeRules;
-
+    return rule.timeRanges.some(range => isRangeActive(range, currentTime))
+  })
 }
 
+function createOrUpdateOverlay(text){
+  if(!overlayState.node){
+    const overlay = document.createElement("div");
+    overlay.style.position = "fixed";
+    overlay.style.top = "0";
+    overlay.style.left = "0";
+    overlay.style.width = "100%";
+    overlay.style.height = "100%";
+    overlay.style.backgroundColor = "#e1e1e1";
+    overlay.style.color = "rgb(36, 36, 36)";
+    overlay.style.fontWeight = "500";
+    overlay.style.display = "flex";
+    overlay.style.flexDirection = "column";
+    overlay.style.justifyContent = "center";
+    overlay.style.alignItems = "center";
+    overlay.style.fontFamily = '"Segoe UI", Roboto, Arial, sans-serif';
+    overlay.style.zIndex = "999999";
 
-//apply rules
-function applyRules(activeRules) {
-  let maxDelay = 0;
-  activeRules.forEach(rule => {
-    switch (rule.type){
-      case 0:
-        console.log("BLOKOWANIE STRONY");
-        blockPage();
-        break;
-      case 1:
-        maxDelay = 10;
-        console.log("delay")
-        
-        break;
-      case 2:
-        // TODO: custom strength
-        applyGrayscale(100);
-        break;
-    }
-  });
+    const message = document.createElement("div");
+    message.style.fontSize = "32px";
+    message.style.marginBottom = "20px";
+    overlay.appendChild(message);
 
-  if(maxDelay != 0){
-    console.log(maxDelay);
-        (async () => {
-          await delayPage(maxDelay);
-        })();
+    document.body.appendChild(overlay);
+
+    overlayState.node = overlay;
+    overlayState.messageEl = message;
   }
-
+  
+  overlayState.messageEl.textContent = text;
 }
 
+async function getUnlocked(){
+  return new Promise(resolve => {
+    chrome.storage.sync.get({ unlockedSites: [] }, (res) => resolve(res.unlockedSites || {}));
+  });
+}
 
-function applyActiveRules(){
-  const [currentDay, currentTime] = getDate();
-  const activeRules = getActiveRules(currentDay, currentTime);
-  applyRules(activeRules);
+async function setUnlocked(unlockedSites){
+  await chrome.storage.sync.set({ unlockedSites });
 }
 
 async function unlockSite(durationSeconds) {
 
+  const hostname = window.location.hostname;
   const now = Date.now();
   const unlockUntil = now + durationSeconds * 1000;
+  const unlocked = await getUnlocked();
+  unlocked[hostname] = unlockUntil;
+  await setUnlocked(unlocked);
 
-  const { unlockedSites } = await new Promise(resolve => {
-    chrome.storage.sync.get({ unlockedSites: [] }, resolve);
-  });
-
-  const hostname = window.location.hostname;
-  const existingIndex = unlockedSites.findIndex(s => s.hostname === hostname);
-
-  if (existingIndex >= 0) {
-    unlockedSites[existingIndex].unlockUntil = unlockUntil;
-  } else {
-    unlockedSites.push({ hostname, unlockUntil });
-  }
-
-  await chrome.storage.sync.set({ unlockedSites });
 }
-
 
 async function isSiteUnlocked() {
 
   const hostname = window.location.hostname;
+  const unlocked = await getUnlocked();
+  const until = unlocked[hostname];
+  if (!until) return false; // site is not unlocked
+  if (Date.now() > until){
+    delete unlocked[hostname];
+    await setUnlocked(unlocked);
+    return false; // was unlocked, but expired
+  }
+  return true; // is still unlocked
+}
 
 
-  const result = await new Promise(resolve => {
-    chrome.storage.sync.get({ unlockedSites: [] }, resolve);
-  });
+async function applyActiveRules(){
+  const { currentDay, currentTime } = getDate();
+  const active = getActiveRules(currentDay, currentTime);
 
-  const unlockedSites = result.unlockedSites;
-  const site = unlockedSites.find(site => site.hostname === hostname);
-
-  // site is not unlocked
-  if (!site) return false;
-
-  if (Date.now() > site.unlockUntil) {
-    // it was unlocked, but is no more
-    const newSites = unlockedSites.filter(s => s.hostname !== hostname);
-    await chrome.storage.sync.set({ unlockedSites: newSites });
-    return false;
+  const isBlocked = active.some(rule => rule.type === RULE_TYPES.BLOCK);
+  if (isBlocked){
+    document.documentElement.innerHTML = ''; // caution: destructive
+    window.stop();
+    createOrUpdateOverlay("This site is blocked");
+    return;
   }
 
-  //not on the list
-
-  return true;
-}
-
-// ========== OVERLAYS
-
-function createOverlaySkeleton() {
-  const overlay = document.createElement("div");
-  overlay.style.position = "fixed";
-  overlay.style.top = "0";
-  overlay.style.left = "0";
-  overlay.style.width = "100%";
-  overlay.style.height = "100%";
-  overlay.style.backgroundColor = "#e1e1e1";
-  overlay.style.color = "rgb(36, 36, 36)";
-  overlay.style.fontWeight = "500";
-  overlay.style.display = "flex";
-  overlay.style.flexDirection = "column";
-  overlay.style.justifyContent = "center";
-  overlay.style.alignItems = "center";
-  overlay.style.fontFamily = '"Segoe UI", Roboto, Arial, sans-serif';
-  overlay.style.zIndex = "999999";
-
-  const message = document.createElement("div");
-  message.style.fontSize = "32px";
-  message.style.marginBottom = "20px";
-  overlay.appendChild(message);
-
-  document.body.appendChild(overlay);
-
-  return { overlay, message };
-}
-
-function createOverlay(text) {
-  const { message } = createOverlaySkeleton();
-  message.textContent = text;
-}
-
-// ========= ACTIONS
-
-async function delayPage(init_seconds) {
-
-  if (await isSiteUnlocked()) return;
-  console.log("delay!!")
-
-
-  document.documentElement.innerHTML = "";
-  window.stop();
-
-  let liczba = init_seconds;
-  createOverlay("This site will be unlocked after " + liczba + " seconds");
-
-  const interval = setInterval(async () => {
-    if (document.hidden) return;
-
-    liczba--;
-    createOverlay("This site will be unlocked after " + liczba + " seconds");
-
-    if (liczba <= 0) {
-      clearInterval(interval);
-      await unlockSite(20);
-      location.reload();
+  const delayRules = active.filter(rule => rule.type === RULE_TYPES.DELAY);
+  if (delayRules.length > 0){
+    const maxDelay = Math.max(...delayRules.map(rule => (rule.delaySeconds || 10))); // TODO: add sliders in ui
+    if (!(await isSiteUnlocked())) {
+      document.documentElement.innerHTML = "";
+      window.stop();
+      let remaining = maxDelay;
+      createOrUpdateOverlay("This site will be unlocked after " + remaining + " seconds");
+      const t = setInterval(async () => {
+        if (document.hidden) return;
+        remaining--;
+        createOrUpdateOverlay("This site will be unlocked after " + remaining + " seconds");
+        if (remaining <= 0) {
+          clearInterval(t);
+          await unlockSite(60); // TODO: make it custom
+          location.reload();
+        }
+      }, 1000);
     }
-  }, 1000);
+    return;
+  }
+
+  //grayscale
+  const grayRules = active.filter(rule => rule.type === RULE_TYPES.GRAYSCALE);
+  if (grayRules.length > 0){
+    const maxStrength = Math.max(...grayRules.map(rule => (rule.strength || 100))); // TODO: add sliders in ui
+    document.documentElement.style.filter = `grayscale(${maxStrength}%)`;
+    return;
+  }
 }
 
+//init
 
-function blockPage() {
-  document.documentElement.innerHTML = "";
-  window.stop();
-  const overlay = createOverlay("This site is blocked"); 
-}
+(async function init(){
+  await updateApplicableData();
+  await applyActiveRules();
+})();
 
-function applyGrayscale(strength) {
-  document.documentElement.style.filter = `grayscale(${strength}%)`;
-}
-
+setInterval(async () => {
+  await applyActiveRules();
+}, UPDATE_INTERVAL_MINUTES * 60 * 1000); 
