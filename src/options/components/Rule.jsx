@@ -57,12 +57,12 @@ function Rule({ rule, onChange, onDelete }) {
             type="range"
             min="0"
             max="100"
-            value={rule.scale ?? 50}
+            value={rule.greyStrength ?? 50}
             onChange={(e) =>
-              onChange({ ...rule, scale: Number(e.target.value) })
+              onChange({ ...rule, greyStrength: Number(e.target.value) })
             }
           />
-          <span>{rule.scale ?? 50}%</span>
+          <span>{rule.greyStrength ?? 50}%</span>
         </div>
       )}
 
@@ -74,9 +74,9 @@ function Rule({ rule, onChange, onDelete }) {
             <input
               type="number"
               min="1"
-              value={rule.delay ?? 10}
+              value={rule.delaySeconds ?? 10}
               onChange={(e) =>
-                onChange({ ...rule, delay: Number(e.target.value) })
+                onChange({ ...rule, delaySeconds: Number(e.target.value) })
               }
             />
           </label>
@@ -86,9 +86,9 @@ function Rule({ rule, onChange, onDelete }) {
             <input
               type="number"
               min="1"
-              value={rule.unblockAfter ?? 10}
+              value={rule.unblockAfterMinutes ?? 10}
               onChange={(e) =>
-                onChange({ ...rule, unblockAfter: Number(e.target.value) })
+                onChange({ ...rule, unblockAfterMinutes: Number(e.target.value) })
               }
             />
           </label>

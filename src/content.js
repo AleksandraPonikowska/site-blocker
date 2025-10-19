@@ -111,11 +111,11 @@ async function setUnlocked(unlockedSites){
   await chrome.storage.sync.set({ unlockedSites });
 }
 
-async function unlockSite(durationSeconds) {
+async function unlockSite(durationMinutes) {
 
   const hostname = window.location.hostname;
   const now = Date.now();
-  const unlockUntil = now + durationSeconds * 1000;
+  const unlockUntil = now + durationMinutes * 60 * 1000;
   const unlocked = await getUnlocked();
   unlocked[hostname] = unlockUntil;
   await setUnlocked(unlocked);
@@ -143,7 +143,7 @@ async function applyActiveRules(){
 
   const isBlocked = active.some(rule => rule.type === RULE_TYPES.BLOCK);
   if (isBlocked){
-    document.documentElement.innerHTML = ''; // caution: destructive
+    document.documentElement.innerHTML = '';
     window.stop();
     createOrUpdateOverlay("This site is blocked");
     return;
@@ -152,6 +152,8 @@ async function applyActiveRules(){
   const delayRules = active.filter(rule => rule.type === RULE_TYPES.DELAY);
   if (delayRules.length > 0){
     const maxDelay = Math.max(...delayRules.map(rule => (rule.delaySeconds || 10))); // TODO: add sliders in ui
+    const minUnlock = Math.min(...delayRules.map(rule => (rule.unblockAfterMinutes || 10))); // TODO: add sliders in ui
+
     if (!(await isSiteUnlocked())) {
       document.documentElement.innerHTML = "";
       window.stop();
@@ -163,7 +165,7 @@ async function applyActiveRules(){
         createOrUpdateOverlay("This site will be unlocked after " + remaining + " seconds");
         if (remaining <= 0) {
           clearInterval(t);
-          await unlockSite(60); // TODO: make it custom
+          await unlockSite(minUnlock); // TODO: make it custom
           location.reload();
         }
       }, 1000);
@@ -174,7 +176,7 @@ async function applyActiveRules(){
   //grayscale
   const grayRules = active.filter(rule => rule.type === RULE_TYPES.GRAYSCALE);
   if (grayRules.length > 0){
-    const maxStrength = Math.max(...grayRules.map(rule => (rule.strength || 100))); // TODO: add sliders in ui
+    const maxStrength = Math.max(...grayRules.map(rule => (rule.greyStrength || 100))); // TODO: add sliders in ui
     document.documentElement.style.filter = `grayscale(${maxStrength}%)`;
     return;
   }
