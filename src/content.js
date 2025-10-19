@@ -4,7 +4,7 @@ const RULE_TYPES = {
   GRAYSCALE: 2
 }
 
-const UPDATE_INTERVAL_MINUTES = 1;
+const UPDATE_INTERVAL_MINUTES = 0.09;
 
 let applicableRules = [];
 let groupId = 0;
@@ -26,6 +26,9 @@ async function fetchAllData() {
             type: 0,
             timeRanges: [{ startTime: "00:00", endTime: "23:59" }],
             days: [true, true, true, true, true, false, false],
+            greyStrength: 50,
+            delaySeconds: 10,
+            unblockAfterMinutes: 10
           },
         ],
       },
@@ -48,7 +51,6 @@ async function updateApplicableData(){
 
 function getDate(){
   const now = new Date();
-  // monday - 1, sunday = 6
   const currentDay = (now.getDay() - 1 + 7) % 7;
   const currentTime = now.getHours() * 60 + now.getMinutes();
   return {currentDay, currentTime}
@@ -103,7 +105,7 @@ function createOrUpdateOverlay(text){
 
 async function getUnlocked(){
   return new Promise(resolve => {
-    chrome.storage.sync.get({ unlockedSites: [] }, (res) => resolve(res.unlockedSites || {}));
+    chrome.storage.sync.get({ unlockedSites: [] }, (res) => resolve(res.unlockedSites));
   });
 }
 
@@ -112,32 +114,44 @@ async function setUnlocked(unlockedSites){
 }
 
 async function unlockSite(durationMinutes) {
-
   const hostname = window.location.hostname;
   const now = Date.now();
   const unlockUntil = now + durationMinutes * 60 * 1000;
-  const unlocked = await getUnlocked();
-  unlocked[hostname] = unlockUntil;
-  await setUnlocked(unlocked);
 
+  const unlocked = await getUnlocked();
+  const existingIndex = unlocked.findIndex(s => s.hostname === hostname);
+
+  if (existingIndex >= 0) {
+    unlocked[existingIndex].unlockUntil = unlockUntil;
+  } else {
+    unlocked.push({ hostname, unlockUntil });
+  }
+
+  await setUnlocked(unlocked);
+  console.log(`Site unlocked until ${new Date(unlockUntil).toLocaleString()}`);
 }
 
 async function isSiteUnlocked() {
-
   const hostname = window.location.hostname;
   const unlocked = await getUnlocked();
-  const until = unlocked[hostname];
-  if (!until) return false; // site is not unlocked
-  if (Date.now() > until){
-    delete unlocked[hostname];
-    await setUnlocked(unlocked);
-    return false; // was unlocked, but expired
+  const site = unlocked.find(site => site.hostname === hostname);
+
+  if (!site) {
+    return false;
   }
-  return true; // is still unlocked
+
+  if (Date.now() > site.unlockUntil) {
+    const newUnlocked = unlocked.filter(s => s.hostname !== hostname);
+    await setUnlocked(newUnlocked);
+    return false;
+  }
+
+  return true;
 }
 
-
 async function applyActiveRules(){
+  if (document.hidden) return;
+
   const { currentDay, currentTime } = getDate();
   const active = getActiveRules(currentDay, currentTime);
 
@@ -151,21 +165,24 @@ async function applyActiveRules(){
 
   const delayRules = active.filter(rule => rule.type === RULE_TYPES.DELAY);
   if (delayRules.length > 0){
-    const maxDelay = Math.max(...delayRules.map(rule => (rule.delaySeconds || 10))); // TODO: add sliders in ui
-    const minUnlock = Math.min(...delayRules.map(rule => (rule.unblockAfterMinutes || 10))); // TODO: add sliders in ui
+    const maxDelay = Math.max(...delayRules.map(rule => (rule.delaySeconds || 10)));
+    const minUnlock = Math.min(...delayRules.map(rule => (rule.unblockAfterMinutes || 10)));
 
     if (!(await isSiteUnlocked())) {
       document.documentElement.innerHTML = "";
       window.stop();
       let remaining = maxDelay;
       createOrUpdateOverlay("This site will be unlocked after " + remaining + " seconds");
+      
       const t = setInterval(async () => {
         if (document.hidden) return;
         remaining--;
         createOrUpdateOverlay("This site will be unlocked after " + remaining + " seconds");
+        
         if (remaining <= 0) {
           clearInterval(t);
-          await unlockSite(minUnlock); // TODO: make it custom
+          await unlockSite(minUnlock);
+          await new Promise(resolve => setTimeout(resolve, 100));
           location.reload();
         }
       }, 1000);
@@ -173,16 +190,13 @@ async function applyActiveRules(){
     return;
   }
 
-  //grayscale
   const grayRules = active.filter(rule => rule.type === RULE_TYPES.GRAYSCALE);
   if (grayRules.length > 0){
-    const maxStrength = Math.max(...grayRules.map(rule => (rule.greyStrength || 100))); // TODO: add sliders in ui
+    const maxStrength = Math.max(...grayRules.map(rule => (rule.greyStrength || 100)));
     document.documentElement.style.filter = `grayscale(${maxStrength}%)`;
     return;
   }
 }
-
-//init
 
 (async function init(){
   await updateApplicableData();
@@ -191,4 +205,5 @@ async function applyActiveRules(){
 
 setInterval(async () => {
   await applyActiveRules();
-}, UPDATE_INTERVAL_MINUTES * 60 * 1000); 
+}, UPDATE_INTERVAL_MINUTES * 60 * 1000);
+

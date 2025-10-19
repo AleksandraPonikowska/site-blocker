@@ -85,7 +85,8 @@ function Rule({ rule, onChange, onDelete }) {
             block after (minutes):{" "}
             <input
               type="number"
-              min="1"
+              min="0.1"
+              step="0.1"
               value={rule.unblockAfterMinutes ?? 10}
               onChange={(e) =>
                 onChange({ ...rule, unblockAfterMinutes: Number(e.target.value) })
