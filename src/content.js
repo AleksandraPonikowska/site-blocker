@@ -156,6 +156,7 @@ async function applyActiveRules(){
   const active = getActiveRules(currentDay, currentTime);
 
   const isBlocked = active.some(rule => rule.type === RULE_TYPES.BLOCK);
+  
   if (isBlocked){
     document.documentElement.innerHTML = '';
     window.stop();
