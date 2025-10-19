@@ -165,10 +165,9 @@ async function applyActiveRules(){
 
   const delayRules = active.filter(rule => rule.type === RULE_TYPES.DELAY);
   if (delayRules.length > 0){
+
     const maxDelay = Math.max(...delayRules.map(rule => (rule.delaySeconds || 10)));
     const minUnlock = Math.min(...delayRules.map(rule => (rule.unblockAfterMinutes || 10)));
-
-    UPDATE_INTERVAL_MINUTES = Math.min(1, minUnlock * 1.01);
 
     if (!(await isSiteUnlocked())) {
       document.documentElement.innerHTML = "";

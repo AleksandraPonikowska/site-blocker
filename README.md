@@ -8,6 +8,20 @@ A Chrome extension for **blocking access to chosen websites** with delay gratifi
 - Apply different rules based on time and day
 - Delay access to websites or apply a grayscale filter
 
+# Preview
+![gif0](pictures/gif0.gif)
+![gif1](pictures/gif1.gif)
+
+![gif2](pictures/gif2.gif)
+
+
+![pic0](pictures/pic0.png)
+![pic1](pictures/pic1.png)
+![pic2](pictures/pic2.png)
+
+
+
+
 ## Installation
 
 1. Clone this repository
