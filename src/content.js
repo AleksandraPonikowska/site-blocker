@@ -4,7 +4,7 @@ const RULE_TYPES = {
   GRAYSCALE: 2
 }
 
-const UPDATE_INTERVAL_MINUTES = 0.09;
+const UPDATE_INTERVAL_MINUTES = 1;
 
 let applicableRules = [];
 let groupId = 0;
@@ -168,6 +168,8 @@ async function applyActiveRules(){
     const maxDelay = Math.max(...delayRules.map(rule => (rule.delaySeconds || 10)));
     const minUnlock = Math.min(...delayRules.map(rule => (rule.unblockAfterMinutes || 10)));
 
+    UPDATE_INTERVAL_MINUTES = Math.min(1, minUnlock * 1.01);
+
     if (!(await isSiteUnlocked())) {
       document.documentElement.innerHTML = "";
       window.stop();
@@ -206,4 +208,5 @@ async function applyActiveRules(){
 setInterval(async () => {
   await applyActiveRules();
 }, UPDATE_INTERVAL_MINUTES * 60 * 1000);
+
 
